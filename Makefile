@@ -3,7 +3,7 @@ CFLAGS  = -O3 -march=native -flto -g -Wall -pedantic
 LDFLAGS = -lpthread -lm
 
 
-main: main.o multi.o
+main: main.o matrix.o multi.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 #.PHONY: test
@@ -15,6 +15,8 @@ main.o: main.c
 	$(CC) $(CFLAGS) -c $<
 
 multi.o: multi.c multi.h
+	$(CC) $(CFLAGS) -c $<
+matrix.o: matrix.c matrix.h
 	$(CC) $(CFLAGS) -c $<
 
 #.PHONY: clean
