@@ -21,6 +21,10 @@ double **sumMatrix(double **A, double **B, uint64_t n, uint64_t m);
 double **multMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
 
 /* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB].
+ * Calcula o produto particionando as matrizes mas nao nenhuma paralelizacao ainda. */
+double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
+
+/* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB].
  * Utiliza pthreads para calcular partições da matriz e depois as reune na matriz final. */
 double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
 
