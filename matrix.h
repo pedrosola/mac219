@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
+#include <stdio.h>
+
+/* Imprime a matrix M[n, m] na saida padrao */
+void printMatrix(double **M, uint64_t n, uint64_t m);
 
 /* Devolve uma matriz M[n, m] composta por zeros. */
 double **zeroMatrix(uint64_t n, uint64_t m);

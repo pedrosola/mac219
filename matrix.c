@@ -7,7 +7,18 @@
 */
 
 #include "matrix.h"
-#include <stdio.h>
+
+void printMatrix(double **M, uint64_t n, uint64_t m) {
+    uint64_t i, j;
+    for (int i = 0; i < n; i++) {
+        printf("| ");
+        for (int j = 0; j < m; j++) {
+            printf("%.2f ", M[i][j]);
+        }
+        printf("|\n");
+    }
+    printf("\n");
+}
 
 double **zeroMatrix(uint64_t n, uint64_t m) {
     uint64_t i, j;
