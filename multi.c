@@ -1,24 +1,25 @@
-/* ------------------ EP 1 MAC0219 ------------------
-   Authors: Pedro Sola Pimentel NUSP 9298079
-            Yannick Thomas Messias NUSP 8803834
+/*  ------------------ EP 1 MAC0219 ------------------
+    Authors: Pedro Sola Pimentel    NUSP 9298079
+             Yannick Thomas Messias NUSP 8803834
 
-   ------------------ Source File -------------------
-   Este arquivo contem funcoes para multiplicacao de matriz.
+    ------------------ Source File -------------------
+    Este arquivo contem funcoes para multiplicacao de matriz.
 */
-#include "multi.h" /* Header File */
 
-double** subMatrix(double** M, uint64_t n, uint64_t i, uint64_t j) {
+#include "multi.h"
+
+double **subMatrix(double **M, uint64_t n, uint64_t i, uint64_t j) {
     uint64_t k;
-    double** subM = malloc((n-i) * sizeof(double*));
+    double **subM = malloc((n-i) * sizeof(double*));
     for(k = 0; k < n-i; k++) {
         subM[k] = &M[i+k][j];
     }
     return subM;
 }
 
-double** sumMatrix(double** A, double** B, uint64_t n, uint64_t m) {
+double **sumMatrix(double **A, double **B, uint64_t n, uint64_t m) {
     uint64_t i, j;
-    double** C = malloc(n * sizeof(double*));
+    double **C = malloc(n * sizeof(double*));
     for (i = 0; i < n; i++) {
         C[i] = malloc(m * sizeof(double));
         for (j = 0; j < m; j++) {
@@ -28,9 +29,9 @@ double** sumMatrix(double** A, double** B, uint64_t n, uint64_t m) {
     return C;
 }
 
-double** multMatrix(double** A, double** B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+double **multMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
     uint64_t i, j, k;
-    double** C = zeroMatrix(nA, mB);
+    double **C = zeroMatrix(nA, mB);
     for (i = 0; i < nA; i++) {
         for (j = 0; j < mB; j++) {
             for (k = 0; k < mAnB; k++) {
@@ -41,11 +42,11 @@ double** multMatrix(double** A, double** B, uint64_t nA, uint64_t mAnB, uint64_t
     return C;
 }
 
-double** parMultMatrix_p(double** A, double** B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
     uint64_t i, j;
     double **A11, **A12, **A21, **A22,
-             **B11, **B12, **B21, **B22,
-             **C11, **C12, **C21, **C22, **C;
+           **B11, **B12, **B21, **B22,
+           **C11, **C12, **C21, **C22, **C;
     uint64_t nA1, mA1nB1, mB1;
     nA1 = nA/2;
     mA1nB1 = mAnB/2;
@@ -58,10 +59,10 @@ double** parMultMatrix_p(double** A, double** B, uint64_t nA, uint64_t mAnB, uin
     B12 = subMatrix(B, mB, 0, mB1);
     B21 = subMatrix(B, mB, mA1nB1, 0);
     B22 = subMatrix(B, mB, mA1nB1, mB1);
-    C11 = sumMatrix(multMatrix(A11, B11, nA1, mA1nB1, mB1), multMatrix(A12, B21, nA1, nA-mAnB, mB1), nA1, mB1);
-    C12 = sumMatrix(multMatrix(A11, B12, nA1, mA1nB1, mB-mB1), multMatrix(A12, B22, nA1, nA-mAnB, mB-mB1), nA1, mB-mB1);
-    C21 = sumMatrix(multMatrix(A21, B11, nA-nA1, mA1nB1, mB1), multMatrix(A22, B21, nA-nA1, nA-mAnB, mB1), nA-nA1, mB1);
-    C22 = sumMatrix(multMatrix(A21, B12, nA-nA1, mA1nB1, mB-mB1), multMatrix(A22, B22, nA-nA1, nA-mAnB, mB-mB1), nA-nA1, mB-mB1);
+    C11 = sumMatrix(multMatrix(A11, B11, nA1, mA1nB1, mB1), multMatrix(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+    C12 = sumMatrix(multMatrix(A11, B12, nA1, mA1nB1, mB-mB1), multMatrix(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+    C21 = sumMatrix(multMatrix(A21, B11, nA-nA1, mA1nB1, mB1), multMatrix(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+    C22 = sumMatrix(multMatrix(A21, B12, nA-nA1, mA1nB1, mB-mB1), multMatrix(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
     C = zeroMatrix(nA, mB);
     for (i = 0; i < nA1; i++) {
         for (j = 0; j < mB1; j++) {
@@ -82,10 +83,8 @@ double** parMultMatrix_p(double** A, double** B, uint64_t nA, uint64_t mAnB, uin
     return C;
 }
 
-
-double** parMultMatrix_o(double** A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+double **parMultMatrix_o(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
    return zeroMatrix (nA, mB);
-
 }
 
 /*
