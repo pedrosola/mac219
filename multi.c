@@ -74,10 +74,10 @@ double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uin
     }
     for (i = nA1; i < nA; i++) {
         for (j = 0; j < mB1; j++) {
-            C[i][j] = C21[i][j];
+            C[i][j] = C21[i-nA1][j];
         }
         for (j = mB1; j < mB; j++) {
-            C[i][j] = C22[i][j-mB1];
+            C[i][j] = C22[i-nA1][j-mB1];
         }
     }
     return C;
