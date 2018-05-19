@@ -46,8 +46,8 @@ double **readMatrix(char *locale, uint64_t *n, uint64_t *m) {
     FILE *file = fopen (locale, "r");
     uint64_t i, j;
     double **M = zeroMatrix(*n, *m);;
-    fscanf(file, "%lld", n);
-    fscanf(file, "%lld", m);
+    fscanf(file, "%SCNu64", n);
+    fscanf(file, "%SCNu64", m);
     for (i = 0; i < *n; i ++) {
         for (j = 0; j < *m; j ++) {
             fscanf(file, "%lf", &M[i][j]);

@@ -52,7 +52,6 @@ double **multMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t
 }
 
 double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
-    uint64_t i, j;
     double **A11, **A12, **A21, **A22,
            **B11, **B12, **B21, **B22,
            **C11, **C12, **C21, **C22, **C;
@@ -114,7 +113,6 @@ void *multMatrix_p(void *argPointer) {
 }
 
 double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
-    uint64_t i, j;
     int k;
     double **A11, **A12, **A21, **A22,
            **B11, **B12, **B21, **B22,
@@ -150,7 +148,7 @@ double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uin
     for (k = 0; k < 8; k++) {
         if (pthread_create(&thread[k], NULL, multMatrix_p, &args[k])) {
             fprintf(stderr, "Error creating thread\n");
-            return 1;
+            return 0;
         }
     }
     pthread_join(thread[0], NULL);
@@ -197,10 +195,11 @@ struct sumMultArguments setSumMultArgs(int id, double **C, uint64_t nC, uint64_t
 
 void *sumMultMatrix_p(void *argPointer) {
     int index;
-    uint64_t n, m, N, M, i, j, I, J;
+    uint64_t n, m, N, M;
     struct sumMultArguments arg;
     arg = *(struct sumMultArguments*) argPointer;
-    double **C_, ***c = arg.args[0].c;
+    double **C_, ***c;
+    c = arg.args[0].c;
     n = arg.args[0].nA;
     m = arg.args[0].mB;
     N = arg.nC;
@@ -226,11 +225,10 @@ void *sumMultMatrix_p(void *argPointer) {
 }
 
 double **parMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
-    uint64_t i, j;
     int k;
     double **A11, **A12, **A21, **A22,
            **B11, **B12, **B21, **B22,
-           **C11, **C12, **C21, **C22, **C;
+           **C;
     uint64_t nA1, mA1nB1, mB1;
     
     pthread_t thread[4];
@@ -268,7 +266,7 @@ double **parMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, ui
     for (k = 0; k < 4; k++) {
         if (pthread_create(&thread[k], NULL, sumMultMatrix_p, &sArgs[k])) {
             fprintf(stderr, "Error creating thread\n");
-            return 1;
+            return 0;
         }
     }
     for (k = 0; k < 4; k++) {
