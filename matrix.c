@@ -10,9 +10,9 @@
 
 void printMatrix(double **M, uint64_t n, uint64_t m) {
     uint64_t i, j;
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         printf("| ");
-        for (int j = 0; j < m; j++) {
+        for (j = 0; j < m; j++) {
             printf("%.2f ", M[i][j]);
         }
         printf("|\n");
@@ -21,7 +21,7 @@ void printMatrix(double **M, uint64_t n, uint64_t m) {
 }
 
 double **zeroMatrix(uint64_t n, uint64_t m) {
-    uint64_t i, j;
+    uint64_t i;
     double **M = (double**) calloc(n, sizeof(double*));
     for (i = 0; i < n; i++) {
         M[i] = (double*) calloc(m, sizeof(double));
