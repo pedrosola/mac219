@@ -196,9 +196,9 @@ struct sumMultArguments setSumMultArgs(int id, double **C, uint64_t nC, uint64_t
 void *sumMultMatrix_p(void *argPointer) {
     int index;
     uint64_t n, m, N, M;
+    double **C_, ***c;
     struct sumMultArguments arg;
     arg = *(struct sumMultArguments*) argPointer;
-    double **C_, ***c;
     c = arg.args[0].c;
     n = arg.args[0].nA;
     m = arg.args[0].mB;

@@ -1,6 +1,6 @@
 /*  ------------------ EP 1 MAC0219 ------------------
     Authors: Pedro Sola Pimentel    NUSP 9298079
-             Yannick Thomas Messias NUSP 8803834
+             YnAnick Thomas Messias NUSP 8803834
 
     ------------------  Main File  -------------------
     Neste Arquivo estao: leitura de argumentos e chamadas de funcoes.
@@ -13,39 +13,34 @@
 
 int main(int argc, char **argv) {
     double **A, **B, **C;
-    uint64_t i, j, An, Am, Bn, Bm;
+    uint64_t i, j, nA, mA, nB, mB;
     char I;
 
     I = (char) argv[1];
-    A = readMatrix(argv[2], &An, &Am);
-    B = readMatrix(argv[3], &Bn, &Bm);
+    A = readMatrix(argv[2], &nA, &mA);
+    B = readMatrix(argv[3], &nB, &mB);
 
-    if (argc < 4) {
+    if (argc < 5) {
         printf("Usage:\n \t.\\main <implementation> <path_to_m1> <path_to_m2> <path_to_m3>\n");
         return 0;
     }
-    else if (Am != Bn) {
+    else if (mA != nB) {
         printf("Matrix dimensions don't match\n");
         return 0;
     }
     if (I == 'p') {
-        printf("Calculando resultado utilizando pthreads ...\n");
-        C = parMultMatrix_p(A, B, An, Am, Bm);
+        printf("CalculnAdo resultado utiliznAdo pthreads ...\n");
+        C = parMultMatrix_p(A, B, nA, mA, mB);
     }
     else if (I == 'o') {
-        printf("Calculando resultado utilizando OpenMP ...\n");
-        C = parMultMatrix_o(A, B, An, Am, Bm);
+        printf("CalculnAdo resultado utiliznAdo OpenMP ...\n");
+        C = parMultMatrix_o(A, B, nA, mA, mB);
     }
     else {
-        C = multMatrix (A, B, An, Am, Bm);
+        C = multMatrix (A, B, nA, mA, mB);
     }
-    for (i = 0; i < An; i++) {
-        for (j = 0; j < Bm; j++) {
-            printf(" %f", C[i][j]);
-        }
-        printf("\n");
-    }
-    writeMatrix(C, An, Bm, argv[3]);
-    printf("Resultado escrito em %s\n", argv[3]);
+    printMatrix(C, nA, mB);
+    writeMatrix(C, nA, mB, argv[4]);
+    printf("Resultado escrito em %s\n", argv[4]);
     return 0;
 }
