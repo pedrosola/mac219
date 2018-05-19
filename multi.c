@@ -17,6 +17,15 @@ double **subMatrix(double **M, uint64_t n, uint64_t i, uint64_t j) {
     return subM;
 }
 
+void writeSubMatrix(double **M, double **subM, uint64_t i0, uint64_t I, uint64_t j0, uint64_t J) {
+    uint64_t i, j;
+    for (i = i0; i < I; i++) {
+        for (j = j0; j < J; j++) {
+            M[i][j] = subM[i-i0][j-j0];
+        }
+    }
+}
+
 double **sumMatrix(double **A, double **B, uint64_t n, uint64_t m) {
     uint64_t i, j;
     double **C = malloc(n * sizeof(double*));
@@ -48,6 +57,7 @@ double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint6
            **B11, **B12, **B21, **B22,
            **C11, **C12, **C21, **C22, **C;
     uint64_t nA1, mA1nB1, mB1;
+
     nA1 = nA/2;
     mA1nB1 = mAnB/2;
     mB1 = mB/2;
@@ -59,27 +69,17 @@ double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint6
     B12 = subMatrix(B, mAnB, 0, mB1);
     B21 = subMatrix(B, mAnB, mA1nB1, 0);
     B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
+
     C11 = sumMatrix(multMatrix(A11, B11, nA1, mA1nB1, mB1), multMatrix(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
     C12 = sumMatrix(multMatrix(A11, B12, nA1, mA1nB1, mB-mB1), multMatrix(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
     C21 = sumMatrix(multMatrix(A21, B11, nA-nA1, mA1nB1, mB1), multMatrix(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
     C22 = sumMatrix(multMatrix(A21, B12, nA-nA1, mA1nB1, mB-mB1), multMatrix(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
-    C = zeroMatrix(nA, mB);
-    for (i = 0; i < nA1; i++) {
-        for (j = 0; j < mB1; j++) {
-            C[i][j] = C11[i][j];
-        }
-        for (j = mB1; j < mB; j++) {
-            C[i][j] = C12[i][j-mB1];
-        }
-    }
-    for (i = nA1; i < nA; i++) {
-        for (j = 0; j < mB1; j++) {
-            C[i][j] = C21[i-nA1][j];
-        }
-        for (j = mB1; j < mB; j++) {
-            C[i][j] = C22[i-nA1][j-mB1];
-        }
-    }
+
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
     return C;
 }
 
@@ -108,18 +108,8 @@ struct multArguments setMultArgs(int id, double ***c, double **A, double **B, ui
 /* Versao de multMatrix a ser executada em thread */
 void *multMatrix_p(void *argPointer) {
     struct multArguments arg;
-    uint64_t i, j, k;
-    double **C;
     arg = *(struct multArguments*) argPointer;
-    C =zeroMatrix(arg.nA, arg.mB);
-    for (i = 0; i < arg.nA; i++) {
-        for (j = 0; j < arg.mB; j++) {
-            for (k = 0; k < arg.mAnB; k++) {
-                C[i][j] += arg.A[i][k] * arg.B[k][j];
-            }
-        }
-    }
-    arg.c[arg.id] = C;
+    arg.c[arg.id] = multMatrix(arg.A, arg.B, arg.nA, arg.mAnB, arg.mB);
     return NULL;
 }
 
@@ -146,6 +136,7 @@ double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uin
     B12 = subMatrix(B, mAnB, 0, mB1);
     B21 = subMatrix(B, mAnB, mA1nB1, 0);
     B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
 
     args[0] = setMultArgs(0, c, A11, B11, nA1, mA1nB1, mB1);
     args[1] = setMultArgs(1, c, A12, B21, nA1, mAnB-mA1nB1, mB1);
@@ -162,39 +153,26 @@ double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uin
             return 1;
         }
     }
-    C = zeroMatrix(nA, mB);
     pthread_join(thread[0], NULL);
     pthread_join(thread[1], NULL);
     C11 = sumMatrix(c[0], c[1], nA1, mB1);
-    for (i = 0; i < nA1; i++) {
-        for (j = 0; j < mB1; j++) {
-            C[i][j] = C11[i][j];
-        }
-    }
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    
     pthread_join(thread[2], NULL);
     pthread_join(thread[3], NULL);
     C12 = sumMatrix(c[2], c[3], nA1, mB-mB1);
-    for (i = 0; i < nA1; i++) {
-        for (j = mB1; j < mB; j++) {
-            C[i][j] = C12[i][j-mB1];
-        }
-    }
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    
     pthread_join(thread[4], NULL);
     pthread_join(thread[5], NULL);
     C21 = sumMatrix(c[4], c[5], nA-nA1, mB1);
-    for (i = nA1; i < nA; i++) {
-        for (j = 0; j < mB1; j++) {
-            C[i][j] = C21[i-nA1][j];
-        }
-    }
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    
     pthread_join(thread[6], NULL);
     pthread_join(thread[7], NULL);
     C22 = sumMatrix(c[6], c[7], nA-nA1, mB-mB1);
-    for (i = nA1; i < nA; i++) {
-        for (j = mB1; j < mB; j++) {
-            C[i][j] = C22[i-nA1][j-mB1];
-        }
-    }
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
     return C;
 }
 
