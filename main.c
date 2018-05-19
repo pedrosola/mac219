@@ -8,12 +8,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "multi.h" /* Funcoes de multiplicao de matrizes */
 #include "matrix.h" /* Funcoes de leitura e escrita de matrizes */
 
 int main(int argc, char **argv) {
+    int msec;
+    clock_t start, diff;
     double **A, **B, **C;
-    uint64_t i, j, nA, mA, nB, mB;
+    uint64_t nA, mA, nB, mB;
     char I;
 
     I = (char) argv[1];
@@ -28,19 +31,34 @@ int main(int argc, char **argv) {
         printf("Matrix dimensions don't match\n");
         return 0;
     }
+    
     if (I == 'p') {
-        printf("CalculnAdo resultado utiliznAdo pthreads ...\n");
+        printf("Calculando resultado utilizando pthreads...\n");
+        start = clock();    
         C = parMultMatrix_p(A, B, nA, mA, mB);
+        diff = clock() - start;
+        msec = diff * 1000 / CLOCKS_PER_SEC;
+        printf("Duração: %d ms\n", msec);
     }
     else if (I == 'o') {
-        printf("CalculnAdo resultado utiliznAdo OpenMP ...\n");
+        printf("Calculando resultado utilizando OpenMP...\n");
+        start = clock();
         C = parMultMatrix_o(A, B, nA, mA, mB);
+        diff = clock() - start;
+        msec = diff * 1000 / CLOCKS_PER_SEC;
+        printf("Duração: %d ms\n", msec);
     }
     else {
-        C = multMatrix (A, B, nA, mA, mB);
+        printf("Calculando resultado tradicionalmente...\n");
+        start = clock();
+        C = MultMatrix(A, B, nA, mA, mB);
+        diff = clock() - start;
+        msec = diff * 1000 / CLOCKS_PER_SEC;
+        printf("Duração: %d ms\n", msec);
     }
-    printMatrix(C, nA, mB);
+    
     writeMatrix(C, nA, mB, argv[4]);
     printf("Resultado escrito em %s\n", argv[4]);
+    
     return 0;
 }
