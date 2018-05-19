@@ -162,27 +162,35 @@ double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uin
             return 1;
         }
     }
-    for (k = 0; k < 8; k++) {
-        pthread_join(thread[k], NULL);
-    }
-
-    C11 = sumMatrix(c[0], c[1], nA1, mB1);
-    C12 = sumMatrix(c[2], c[3], nA1, mB-mB1);
-    C21 = sumMatrix(c[4], c[5], nA-nA1, mB1);
-    C22 = sumMatrix(c[6], c[7], nA-nA1, mB-mB1);
     C = zeroMatrix(nA, mB);
+    pthread_join(thread[0], NULL);
+    pthread_join(thread[1], NULL);
+    C11 = sumMatrix(c[0], c[1], nA1, mB1);
     for (i = 0; i < nA1; i++) {
         for (j = 0; j < mB1; j++) {
             C[i][j] = C11[i][j];
         }
+    }
+    pthread_join(thread[2], NULL);
+    pthread_join(thread[3], NULL);
+    C12 = sumMatrix(c[2], c[3], nA1, mB-mB1);
+    for (i = 0; i < nA1; i++) {
         for (j = mB1; j < mB; j++) {
             C[i][j] = C12[i][j-mB1];
         }
     }
+    pthread_join(thread[4], NULL);
+    pthread_join(thread[5], NULL);
+    C21 = sumMatrix(c[4], c[5], nA-nA1, mB1);
     for (i = nA1; i < nA; i++) {
         for (j = 0; j < mB1; j++) {
             C[i][j] = C21[i-nA1][j];
         }
+    }
+    pthread_join(thread[6], NULL);
+    pthread_join(thread[7], NULL);
+    C22 = sumMatrix(c[6], c[7], nA-nA1, mB-mB1);
+    for (i = nA1; i < nA; i++) {
         for (j = mB1; j < mB; j++) {
             C[i][j] = C22[i-nA1][j-mB1];
         }
