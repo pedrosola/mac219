@@ -31,5 +31,9 @@ double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint6
  * Utiliza pthreads para calcular partições da matriz e depois as reune na matriz final. */
 double **parMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
 
+/* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB].
+ * Utiliza pthreads para calcular partições da matriz e depois as reune na matriz final. */
+double **parMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
+
 /* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB]. */
 double **parMultMatrix_o(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
