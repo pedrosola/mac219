@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 /* Imprime a matrix M[n, m] na saida padrao */
 void printMatrix(double **M, uint64_t n, uint64_t m);

@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     uint64_t nA, mA, nB, mB;
     char I;
 
-    I = (char) argv[1];
+    I = (char) argv[1][0];
     A = readMatrix(argv[2], &nA, &mA);
     B = readMatrix(argv[3], &nB, &mB);
 
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     else {
         printf("Calculando resultado tradicionalmente...\n");
         start = clock();
-        C = MultMatrix(A, B, nA, mA, mB);
+        C = multMatrix(A, B, nA, mA, mB);
         diff = clock() - start;
         msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("Duração: %d ms\n", msec);

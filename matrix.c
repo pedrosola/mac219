@@ -46,14 +46,11 @@ double **readMatrix(char *locale, uint64_t *n, uint64_t *m) {
     FILE *file = fopen (locale, "r");
     uint64_t i, j;
     double **M;
-    fscanf(file, "% SCNu64", n);
-    fscanf(file, "% SCNu64", m);
+    fscanf(file, "%ld", n);
+    fscanf(file, "%ld", m);
     M = zeroMatrix(*n, *m);
-    for (i = 0; i < *n; i ++) {
-        for (j = 0; j < *m; j ++) {
-            fscanf(file, "%lf", &M[i][j]);
-        }
-    }
+    while (fscanf (file, "%ld %ld", &i, &j) != EOF) 
+	fscanf(file, "%lf", &M[i][j]);
     fclose(file);
     return M;
 }
@@ -61,12 +58,11 @@ double **readMatrix(char *locale, uint64_t *n, uint64_t *m) {
 int writeMatrix(double **M, uint64_t n, uint64_t m, char *locale) {
     FILE *out = fopen (locale, "w");
     uint64_t i, j;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j ++) {
-            fprintf(out, "%f ", M[i][j]);
-        }
-        fprintf(out, "\n");
-    }
+    fprintf (out, "%"PRId64 " %"PRId64 "\n", n, m);
+    for (i = 0; i < n; i++) 
+        for (j = 0; j < m; j ++) 
+	    if (M[i][j] != 0)
+		fprintf(out, "%"PRId64  " %"PRId64 " %f \n", i, j, M[i][j]);
     fclose (out);
     return 0;
 }
