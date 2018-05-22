@@ -38,6 +38,20 @@ double **sumMatrix(double **A, double **B, uint64_t n, uint64_t m) {
     return C;
 }
 
+double **ompMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+    uint64_t i, j, k;
+    double **C = zeroMatrix(nA, mB);
+#pragma omp parallel for 
+    for (i = 0; i < nA; i++) {
+	for (j = 0; j < mB; j++) {
+	    for (k = 0; k < mAnB; k++) {
+		C[i][j] += A[i][k] * B[k][j];
+	    }
+	}
+    }
+    return C;
+}
+
 double **multMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
     uint64_t i, j, k;
     double **C = zeroMatrix(nA, mB);

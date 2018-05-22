@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
+#include "omp.h" 
 #include "matrix.h"
 
 /* Devolve a submatriz de A[n, :] com origem em (i,j). */
@@ -37,3 +38,7 @@ double **parMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, ui
 
 /* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB]. */
 double **parMultMatrix_o(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);
+
+
+/* Devolve uma matriz que eh o produto das matrizes A[nA, mA] e B[nB, mB]. */
+double **ompMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB);

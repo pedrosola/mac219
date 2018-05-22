@@ -1,6 +1,6 @@
 CC      = gcc
-CFLAGS  = -O3 -march=native -flto -g -Wall -pedantic
-LDFLAGS = -lpthread -lm
+CFLAGS  = -O3 -march=native -flto -g -Wall -pedantic -fopenmp
+LDFLAGS = -lpthread -lm 
 
 
 main: main.o matrix.o multi.o

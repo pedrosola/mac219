@@ -6,9 +6,7 @@
     Neste Arquivo estao: leitura de argumentos e chamadas de funcoes.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 #include "multi.h" /* Funcoes de multiplicao de matrizes */
 #include "matrix.h" /* Funcoes de leitura e escrita de matrizes */
 
