@@ -1,6 +1,6 @@
 /*  ------------------ EP 1 MAC0219 ------------------
     Authors: Pedro Sola Pimentel    NUSP 9298079
-             YnAnick Thomas Messias NUSP 8803834
+             Yannick Thomas Messias NUSP 8803834
 
     ------------------  Main File  -------------------
     Neste Arquivo estao: leitura de argumentos e chamadas de funcoes.
