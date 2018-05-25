@@ -24,4 +24,4 @@ matrix.o: matrix.c matrix.h
 
 # clean
 clean:
-	rm -f *.o main test
+	rm -f *.o *.sample main test
