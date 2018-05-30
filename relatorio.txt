@@ -1,0 +1,44 @@
+/*  ------------------ EP 1 MAC0219 ------------------
+    Authors: Pedro Sola Pimentel    NUSP 9298079
+             Yannick Thomas Messias NUSP 8803834
+
+    ------------------- Relatorio --------------------
+    Este arquivo contem o relatorio de atividades.
+*/
+
+Neste EP, criamos funções para multiplicação de matrizes, conforme solicitado
+no enunciado. Na tentativa de chegar a um bom resultado e ter material suficiente
+para comparar os algoritmos, desenvolvemos ao todo 5 funcoes de que realizam a
+tarefa de multiplicao:
+
+   1. multMatrix: Realiza a multiplicacao de matrizes de forma simples, sem
+                  utilizar threads. Cada elemento da matriz resultante é
+                  calculado utilizando um loop da forma padrão.
+
+   2. parMultMatrix: Realiza a multiplicacao de matrizes particionando o
+                     objetivo. Ainda não utilizamos threads para realizar a tarefa.
+
+   3. parMultMatrix_p:  Mesmo algoritmo de parMultMatrix, porém este utiliza-se
+                        de threads para realizar a tarefa.
+
+   4. parMultMatrix_p2: --
+
+   5. ompMultMatrix: Utilizamos o mesmo algoritmo de multMatrix, porém
+                     adicionamos o uso de threads utilizando o OpenMP para
+                     paralelizar a execucao do primeiro loop.
+
+Criamos o arquivo de teste, test.c para comparar o tempo de execucao e a
+corretude de cada algoritmo. A saida foi a seguinte:
+
+$ make test
+./test
+1000 1000
+standard:	8377.519000 ms
+omp:	    	1348.026000 ms
+pthread:		5526.131000 ms
+pthread_p:	795.108000 ms
+pthread_p2:	1438.283000 ms
+
+Como pode ser visto, o algoritmo parMultMatrix_p obteve o melhor resultado,
+assim, decidimos utilizar este algoritmo como padrão para a multiplicao
+de matrizes com pthreads.
