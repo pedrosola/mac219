@@ -17,15 +17,17 @@ int main(int argc, char **argv) {
     uint64_t nA, mA, nB, mB;
     char I;
 
+    if (argc < 5) {
+        printf("Usage:\n \t./main <implementation> <path_to_m1> <path_to_m2> <path_to_m3>\n\n");
+        printf("Implementations:\n \tp : pthread\n \to : OpenMP\n \tt : traditional\n\n");
+        return 0;
+    }
+    
     I = (char) argv[1][0];
     A = readMatrix(argv[2], &nA, &mA);
     B = readMatrix(argv[3], &nB, &mB);
-
-    if (argc < 5) {
-        printf("Usage:\n \t.\\main <implementation> <path_to_m1> <path_to_m2> <path_to_m3>\n");
-        return 0;
-    }
-    else if (mA != nB) {
+    
+    if (mA != nB) {
         printf("Matrix dimensions don't match\n");
         return 0;
     }
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
     if (I == 'p') {
         printf("Calculando resultado utilizando pthreads...\n");
         start = clock();    
-        C = parMultMatrix_p(A, B, nA, mA, mB);
+        C = bestMultMatrix_p(A, B, nA, mA, mB);
         diff = clock() - start;
         msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("Duração: %d ms\n", msec);
@@ -41,7 +43,7 @@ int main(int argc, char **argv) {
     else if (I == 'o') {
         printf("Calculando resultado utilizando OpenMP...\n");
         start = clock();
-        C = parMultMatrix_o(A, B, nA, mA, mB);
+        C = bestMultMatrix_o(A, B, nA, mA, mB);
         diff = clock() - start;
         msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("Duração: %d ms\n", msec);

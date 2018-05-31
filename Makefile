@@ -9,7 +9,7 @@ main: main.o matrix.o multi.o
 test: test.o matrix.o multi.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 #mkdir sample
-	./test
+	./test 1000 1000 1000
 #rm -r sample
 
 test.o: test.c
