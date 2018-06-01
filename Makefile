@@ -1,16 +1,19 @@
 CC      = gcc
-CFLAGS  = -O3 -march=native -flto -g -Wall -pedantic
-LDFLAGS = -lpthread -lm
+CFLAGS  = -O3 -march=native -flto -g -Wall -pedantic -fopenmp
+LDFLAGS = -lpthread -lm 
 
 
 main: main.o matrix.o multi.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-#.PHONY: test
-#test: test.o bakery.o gate.o general_lock.o
-#	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-#	./test
+test: test.o matrix.o multi.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+#mkdir sample
+	./test 1000 1000 1000
+#rm -r sample
 
+test.o: test.c
+	$(CC) $(CFLAGS) -c $<
 main.o: main.c
 	$(CC) $(CFLAGS) -c $<
 
@@ -19,6 +22,6 @@ multi.o: multi.c multi.h
 matrix.o: matrix.c matrix.h
 	$(CC) $(CFLAGS) -c $<
 
-#.PHONY: clean
+# clean
 clean:
-	rm -f *.o main
+	rm -f *.o *.sample main test

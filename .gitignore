@@ -1,3 +1,4 @@
 main
-tests/*
+test
+sample/*
 *.o

@@ -51,6 +51,20 @@ double **multMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t
     return C;
 }
 
+double **ompMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+    uint64_t i, j, k;
+    double **C = zeroMatrix(nA, mB);
+    #pragma omp parallel for 
+    for (i = 0; i < nA; i++) {
+        for (j = 0; j < mB; j++) {
+            for (k = 0; k < mAnB; k++) {
+                C[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return C;
+}
+
 double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
     double **A11, **A12, **A21, **A22,
            **B11, **B12, **B21, **B22,
@@ -79,6 +93,7 @@ double **parMultMatrix(double **A, double **B, uint64_t nA, uint64_t mAnB, uint6
     writeSubMatrix(C, C12, 0, nA1, mB1, mB);
     writeSubMatrix(C, C21, nA1, nA, 0, mB1);
     writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
     return C;
 }
 
@@ -276,5 +291,153 @@ double **parMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, ui
 }
 
 double **parMultMatrix_o(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
-   return zeroMatrix (nA, mB);
+    double **A11, **A12, **A21, **A22,
+           **B11, **B12, **B21, **B22,
+           **C11, **C12, **C21, **C22, **C;
+    uint64_t nA1, mA1nB1, mB1;
+
+    nA1 = nA/2;
+    mA1nB1 = mAnB/2;
+    mB1 = mB/2;
+    A11 = subMatrix(A, nA, 0, 0);
+    A12 = subMatrix(A, nA, 0, mA1nB1);
+    A21 = subMatrix(A, nA, nA1, 0);
+    A22 = subMatrix(A, nA, nA1, mA1nB1);
+    B11 = subMatrix(B, mAnB, 0, 0);
+    B12 = subMatrix(B, mAnB, 0, mB1);
+    B21 = subMatrix(B, mAnB, mA1nB1, 0);
+    B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
+
+    C11 = sumMatrix(ompMultMatrix(A11, B11, nA1, mA1nB1, mB1), ompMultMatrix(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+    C12 = sumMatrix(ompMultMatrix(A11, B12, nA1, mA1nB1, mB-mB1), ompMultMatrix(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+    C21 = sumMatrix(ompMultMatrix(A21, B11, nA-nA1, mA1nB1, mB1), ompMultMatrix(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+    C22 = sumMatrix(ompMultMatrix(A21, B12, nA-nA1, mA1nB1, mB-mB1), ompMultMatrix(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
+    return C;
+}
+
+double **bestMultMatrix_o(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+    double **A11, **A12, **A21, **A22,
+           **B11, **B12, **B21, **B22,
+           **C11, **C12, **C21, **C22, **C;
+    uint64_t nA1, mA1nB1, mB1;
+
+    nA1 = nA/2;
+    mA1nB1 = mAnB/2;
+    mB1 = mB/2;
+    A11 = subMatrix(A, nA, 0, 0);
+    A12 = subMatrix(A, nA, 0, mA1nB1);
+    A21 = subMatrix(A, nA, nA1, 0);
+    A22 = subMatrix(A, nA, nA1, mA1nB1);
+    B11 = subMatrix(B, mAnB, 0, 0);
+    B12 = subMatrix(B, mAnB, 0, mB1);
+    B21 = subMatrix(B, mAnB, mA1nB1, 0);
+    B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
+
+    if ((nA1+mA1nB1+mB1)/3 < BEST_THRESHOLD) {
+        C11 = sumMatrix(ompMultMatrix(A11, B11, nA1, mA1nB1, mB1), ompMultMatrix(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(ompMultMatrix(A11, B12, nA1, mA1nB1, mB-mB1), ompMultMatrix(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(ompMultMatrix(A21, B11, nA-nA1, mA1nB1, mB1), ompMultMatrix(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(ompMultMatrix(A21, B12, nA-nA1, mA1nB1, mB-mB1), ompMultMatrix(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    else {
+        C11 = sumMatrix(bestMultMatrix_o(A11, B11, nA1, mA1nB1, mB1), bestMultMatrix_o(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(bestMultMatrix_o(A11, B12, nA1, mA1nB1, mB-mB1), bestMultMatrix_o(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(bestMultMatrix_o(A21, B11, nA-nA1, mA1nB1, mB1), bestMultMatrix_o(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(bestMultMatrix_o(A21, B12, nA-nA1, mA1nB1, mB-mB1), bestMultMatrix_o(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
+    return C;
+}
+
+double **bestMultMatrix_p(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+    double **A11, **A12, **A21, **A22,
+           **B11, **B12, **B21, **B22,
+           **C11, **C12, **C21, **C22, **C;
+    uint64_t nA1, mA1nB1, mB1;
+
+    nA1 = nA/2;
+    mA1nB1 = mAnB/2;
+    mB1 = mB/2;
+    A11 = subMatrix(A, nA, 0, 0);
+    A12 = subMatrix(A, nA, 0, mA1nB1);
+    A21 = subMatrix(A, nA, nA1, 0);
+    A22 = subMatrix(A, nA, nA1, mA1nB1);
+    B11 = subMatrix(B, mAnB, 0, 0);
+    B12 = subMatrix(B, mAnB, 0, mB1);
+    B21 = subMatrix(B, mAnB, mA1nB1, 0);
+    B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
+
+    if ((nA1+mA1nB1+mB1)/3 < 3*BEST_THRESHOLD) {
+        C11 = sumMatrix(parMultMatrix_p(A11, B11, nA1, mA1nB1, mB1), parMultMatrix_p(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(parMultMatrix_p(A11, B12, nA1, mA1nB1, mB-mB1), parMultMatrix_p(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(parMultMatrix_p(A21, B11, nA-nA1, mA1nB1, mB1), parMultMatrix_p(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(parMultMatrix_p(A21, B12, nA-nA1, mA1nB1, mB-mB1), parMultMatrix_p(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    else {
+        C11 = sumMatrix(bestMultMatrix_p(A11, B11, nA1, mA1nB1, mB1), bestMultMatrix_p(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(bestMultMatrix_p(A11, B12, nA1, mA1nB1, mB-mB1), bestMultMatrix_p(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(bestMultMatrix_p(A21, B11, nA-nA1, mA1nB1, mB1), bestMultMatrix_p(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(bestMultMatrix_p(A21, B12, nA-nA1, mA1nB1, mB-mB1), bestMultMatrix_p(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
+    return C;
+}
+
+double **bestMultMatrix_p2(double **A, double **B, uint64_t nA, uint64_t mAnB, uint64_t mB) {
+    double **A11, **A12, **A21, **A22,
+           **B11, **B12, **B21, **B22,
+           **C11, **C12, **C21, **C22, **C;
+    uint64_t nA1, mA1nB1, mB1;
+
+    nA1 = nA/2;
+    mA1nB1 = mAnB/2;
+    mB1 = mB/2;
+    A11 = subMatrix(A, nA, 0, 0);
+    A12 = subMatrix(A, nA, 0, mA1nB1);
+    A21 = subMatrix(A, nA, nA1, 0);
+    A22 = subMatrix(A, nA, nA1, mA1nB1);
+    B11 = subMatrix(B, mAnB, 0, 0);
+    B12 = subMatrix(B, mAnB, 0, mB1);
+    B21 = subMatrix(B, mAnB, mA1nB1, 0);
+    B22 = subMatrix(B, mAnB, mA1nB1, mB1);
+    C = zeroMatrix(nA, mB);
+
+    if ((nA1+mA1nB1+mB1)/3 < BEST_THRESHOLD/2) {
+        C11 = sumMatrix(parMultMatrix_p2(A11, B11, nA1, mA1nB1, mB1), parMultMatrix_p2(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(parMultMatrix_p2(A11, B12, nA1, mA1nB1, mB-mB1), parMultMatrix_p2(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(parMultMatrix_p2(A21, B11, nA-nA1, mA1nB1, mB1), parMultMatrix_p2(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(parMultMatrix_p2(A21, B12, nA-nA1, mA1nB1, mB-mB1), parMultMatrix_p2(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    else {
+        C11 = sumMatrix(bestMultMatrix_p(A11, B11, nA1, mA1nB1, mB1), bestMultMatrix_p(A12, B21, nA1, mAnB-mA1nB1, mB1), nA1, mB1);
+        C12 = sumMatrix(bestMultMatrix_p(A11, B12, nA1, mA1nB1, mB-mB1), bestMultMatrix_p(A12, B22, nA1, mAnB-mA1nB1, mB-mB1), nA1, mB-mB1);
+        C21 = sumMatrix(bestMultMatrix_p(A21, B11, nA-nA1, mA1nB1, mB1), bestMultMatrix_p(A22, B21, nA-nA1, mAnB-mA1nB1, mB1), nA-nA1, mB1);
+        C22 = sumMatrix(bestMultMatrix_p(A21, B12, nA-nA1, mA1nB1, mB-mB1), bestMultMatrix_p(A22, B22, nA-nA1, mAnB-mA1nB1, mB-mB1), nA-nA1, mB-mB1);
+    }
+    
+    writeSubMatrix(C, C11, 0, nA1, 0, mB1);
+    writeSubMatrix(C, C12, 0, nA1, mB1, mB);
+    writeSubMatrix(C, C21, nA1, nA, 0, mB1);
+    writeSubMatrix(C, C22, nA1, nA, mB1, mB);
+    
+    return C;
 }

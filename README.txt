@@ -14,10 +14,11 @@ usage:
 
 where:
    m1 é um arquivo contendo uma matriz A (NxM)
-   m2 é um arquivo contendo uma matriz B (MxJ)
+   m2 é um arquivo contendo uma matriz B (MxO)
    m3 é um caminho valido no sistema.
    implementacao = p : pthreads
-                   o : openMP
+                   o : OpenMP
+                   t : tradicional
 
 para testes, use:
-   ./test <N> <M> <J>
+   ./test <N> <M> <O>
